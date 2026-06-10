@@ -221,7 +221,7 @@ export const contact = {
   email: "boggianooctavio@gmail.com",
   linkedin: "https://linkedin.com/in/octavioboggiano",
   github: "https://github.com/tervaskanto90",
-  twitter: "https://x.com/", // TODO: confirm X/Twitter handle
+  twitter: "https://x.com/tervaskanto",
   location: "Buenos Aires, Argentina",
   languages: "English (Native) · Spanish (Native)",
 };
