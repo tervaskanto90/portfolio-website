@@ -79,6 +79,7 @@ export default function Story() {
       // hero entrance
       gsap
         .timeline({ defaults: { ease: "power3.out" } })
+        .fromTo(".portrait", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.9 }, 0.1)
         .fromTo(".hero-kicker", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.9 }, 0.2)
         .fromTo(
           ".hero-title .line",
@@ -108,7 +109,7 @@ export default function Story() {
   return (
     <div ref={root}>
       <header className="site-nav">
-        <a href="#top" className="monogram">OB</a>
+        <a href="#top" className="monogram">Octavio Boggiano</a>
         <nav>
           <a href="#voice">Expertise</a>
           <a href="#journey">Journey</a>
@@ -123,17 +124,26 @@ export default function Story() {
       {/* CH 0 — HERO */}
       <section className="hero" id="top" data-chapter="0">
         <div className="hero-inner">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/octavio.jpg"
+            alt="Octavio Boggiano"
+            className="portrait"
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+            }}
+          />
           <p className="hero-kicker">Octavio Boggiano · AI Solutions Architect</p>
           <h1 className="hero-title">
-            <span className="mask"><span className="line">I architect intelligent</span></span>
+            <span className="mask"><span className="line">Designing intelligent</span></span>
             <span className="mask"><span className="line">systems that <em>listen,</em></span></span>
             <span className="mask"><span className="line"><em>speak</em> &amp; act.</span></span>
           </h1>
           <div className="hero-meta">
             <p>
-              Solutions Architect at <strong>AudioCodes</strong> — designing where
-              enterprise voice meets AI. 10+ years across presales engineering,
-              cybersecurity and unified communications.
+              AI Solutions Architect with <strong>more than a decade</strong> of
+              experience across voice, cybersecurity and unified communications —
+              designing systems where enterprise communication meets AI.
             </p>
             <p className="hero-location">Buenos Aires → the world · EN / ES native</p>
           </div>
@@ -168,7 +178,7 @@ export default function Story() {
         <span className="chapter-number" aria-hidden="true">06</span>
         <div className="chapter-body wide">
           <p className="kicker" data-reveal>The Journey</p>
-          <h2 data-reveal>A decade of building, securing &amp; connecting</h2>
+          <h2 data-reveal>More than a decade of building, securing &amp; connecting</h2>
           <div className="timeline">
             {experience.map((job) => (
               <article className="job" key={`${job.company}-${job.period}`} data-reveal>
@@ -235,7 +245,7 @@ export default function Story() {
           <div className="socials" data-reveal-group>
             <a href={contact.linkedin} target="_blank" rel="noreferrer">LinkedIn</a>
             <a href={contact.github} target="_blank" rel="noreferrer">GitHub</a>
-            <a href={`mailto:${contact.email}`}>Email</a>
+            <a href={contact.twitter} target="_blank" rel="noreferrer">Twitter</a>
           </div>
           <footer>
             <p>{contact.location} · {contact.languages}</p>

@@ -17,14 +17,14 @@ export const chapters: Chapter[] = [
     kicker: "The Voice",
     title: "AI that speaks — and listens",
     narrative:
-      "Voice is the oldest interface we have, and the newest frontier of AI. I design conversational voice architectures end to end: SIP and SBC infrastructure meeting real-time speech models, voice bots living inside Microsoft Teams and contact centers, telephony that understands intent instead of just transporting audio. At AudioCodes I architect the bridge between enterprise voice networks and the Voice AI layer on top of them.",
+      "Voice is the oldest interface we have, and the newest frontier of AI. I design conversational voice experiences end to end: real-time speech models talking over IP, agents that hold natural phone conversations, assistants living inside Microsoft Teams and contact centers — calls that understand intent instead of just carrying audio.",
     capabilities: [
       "Voice AI & conversational agents",
-      "AudioCodes Voice AI portfolio",
-      "SBC architecture (Mediant, CUBE, Ribbon)",
-      "Microsoft Teams & Zoom Phone integration",
+      "Voice bots for contact centers",
+      "Speech-to-text / text-to-speech pipelines",
       "Real-time transcription & speech analytics",
-      "SIP / RTP / SRTP at carrier scale",
+      "Microsoft Teams integration",
+      "Voice over IP at enterprise scale",
     ],
     featured: true,
   },
@@ -103,20 +103,20 @@ export const experience: Job[] = [
   {
     role: "Solutions Architect · Presales Engineer",
     company: "AudioCodes",
-    location: "New York, USA · Remote",
-    period: "Apr 2026 — Present",
+    location: "Remote from Buenos Aires, Argentina",
+    period: "2026 — Present",
     current: true,
     bullets: [
-      "Architecting enterprise voice and Voice AI solutions across the AudioCodes portfolio — Mediant SBCs, Microsoft Teams Direct Routing, Zoom Phone and conversational AI integrations.",
-      "Leading the full presales cycle for strategic accounts: discovery, high-level design, demos, POC delivery and RFP responses.",
-      "Designing architectures where telephony infrastructure meets real-time AI: voice bots, transcription pipelines and intelligent call routing.",
+      "Architecting Voice AI solutions end to end: conversational agents, voice bots and real-time speech intelligence over enterprise voice.",
+      "Owning presales across Argentina, Uruguay, Paraguay, Bolivia and Chile: discovery, high-level design, demos, POC delivery and RFP responses.",
+      "Designing architectures where telephony meets real-time AI: voice bots, transcription pipelines and intelligent call routing.",
     ],
   },
   {
     role: "Enterprise Solutions Specialist · Presales Engineer",
     company: "Faraday Security",
     location: "Buenos Aires, Argentina · Remote",
-    period: "Jan 2022 — Apr 2026",
+    period: "2022 — 2026",
     bullets: [
       "Led end-to-end presales for a vulnerability management platform serving enterprise clients in financial services, healthcare and government.",
       "Delivered demos and solution designs mapping vulnerability workflows to ISO 27001, PCI-DSS, SOC 2 and HIPAA compliance requirements.",
@@ -125,10 +125,10 @@ export const experience: Job[] = [
     ],
   },
   {
-    role: "IT Manager · Cybersecurity & UC Infrastructure Consultant",
+    role: "Cybersecurity & UC Infrastructure Consultant",
     company: "Superintendencia de Seguros de la Nación",
     location: "Buenos Aires, Argentina · Hybrid",
-    period: "Dec 2018 — Dec 2021",
+    period: "2018 — 2021",
     bullets: [
       "Designed and deployed enterprise voice and data security architecture for a government agency: VoIP segmentation, QoS policies and SIP trunk security controls.",
       "Implemented a vulnerability management program aligned with ISO 27001 and government cybersecurity standards, including assessments and penetration testing.",
@@ -136,42 +136,32 @@ export const experience: Job[] = [
     ],
   },
   {
-    role: "Presales Engineer",
-    company: "Travtion",
-    location: "Buenos Aires, Argentina · Remote",
-    period: "Nov 2017 — Nov 2018",
-    bullets: [
-      "Evaluated regional expansion through technical assessments of VoIP and telecom infrastructure, presenting architecture recommendations to executive management.",
-      "Led contract negotiations with business partners aligning technical requirements for voice and data service delivery.",
-    ],
-  },
-  {
     role: "Account Manager · Public Sector",
     company: "Metrotel Argentina",
-    location: "Buenos Aires, Argentina",
-    period: "Jan 2017 — Nov 2017",
+    location: "Buenos Aires, Argentina · On-site",
+    period: "2016 — 2017",
     bullets: [
-      "Managed enterprise telecom and VoIP sales for corporate and government accounts: SIP trunking, voice connectivity and managed UC services.",
-      "Coordinated with engineering on PRI-to-SIP migrations, multi-site dial plans and QoS for voice traffic.",
+      "Managed government and public-sector accounts for a telecommunications carrier, selling connectivity, SIP trunking and managed voice services.",
+      "Worked with engineering teams on solution feasibility and proposals for enterprise connectivity and voice infrastructure projects.",
     ],
   },
   {
     role: "Account Manager · Presales Engineer — UC & Security",
     company: "TAISA",
-    location: "Buenos Aires, Argentina",
-    period: "Apr 2014 — Feb 2016",
+    location: "Buenos Aires, Argentina · On-site",
+    period: "2014 — 2016",
     bullets: [
-      "Deployed Cisco UC (CUCM, Unity, SIP trunking) and Fortinet security for healthcare enterprises: dial plans, SBC integration and multi-site rollouts.",
-      "Hands-on presales: demos, POC configurations and competitive analysis for Cisco and Fortinet portfolios.",
+      "Implemented enterprise solutions across Cisco, Fortinet, Avaya, HP and VMware for healthcare clients, from design to deployment.",
+      "Hands-on presales: demos, POC configurations and competitive analysis, translating business objectives into tailored architectures.",
     ],
   },
   {
     role: "Technical Support Specialist",
-    company: "EDSI Trend Argentina",
-    location: "Buenos Aires, Argentina",
-    period: "Apr 2013 — Jan 2014",
+    company: "Trend Micro",
+    location: "Buenos Aires, Argentina · On-site",
+    period: "2013 — 2014",
     bullets: [
-      "Supported enterprise security and network infrastructure: perimeter security, endpoint protection and voice network security.",
+      "Supported enterprise security and network infrastructure: perimeter security, endpoint protection and network hardening.",
       "Implemented Trend Micro security products across client environments.",
     ],
   },
@@ -204,10 +194,10 @@ export const projects: Project[] = [
   },
   {
     name: "Nix it!",
-    tagline: "Friction, eliminated",
+    tagline: "Your subscriptions, under control",
     description:
-      "A productivity app built to nix the noise — capture what matters, automate the rest, and keep your flow efficient.",
-    stack: ["TypeScript", "Next.js", "Automation"],
+      "An app to track and manage your subscriptions — see exactly what you pay, spot what you no longer use, and nix it before the next renewal.",
+    stack: ["TypeScript", "Next.js", "Productivity"],
     url: "https://nixit.vercel.app",
   },
   {
@@ -231,6 +221,7 @@ export const contact = {
   email: "boggianooctavio@gmail.com",
   linkedin: "https://linkedin.com/in/octavioboggiano",
   github: "https://github.com/tervaskanto90",
+  twitter: "https://x.com/", // TODO: confirm X/Twitter handle
   location: "Buenos Aires, Argentina",
   languages: "English (Native) · Spanish (Native)",
 };
