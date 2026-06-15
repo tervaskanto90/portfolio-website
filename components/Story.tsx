@@ -11,6 +11,7 @@ import {
   education,
   contact,
 } from "@/lib/content";
+import ProjectMotif from "@/components/ProjectMotif";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -214,7 +215,14 @@ export default function Story() {
           <h2 data-reveal>Things I&apos;ve shipped</h2>
           <div className="project-grid" data-reveal-group>
             {projects.map((p) => (
-              <a className="project-card" key={p.name} href={p.url} target="_blank" rel="noreferrer">
+              <a
+                className={`project-card motif-${p.motif}`}
+                key={p.name}
+                href={p.url}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <ProjectMotif motif={p.motif} />
                 <div className="project-top">
                   <h3>{p.name}</h3>
                   <span className="arrow" aria-hidden="true">↗</span>

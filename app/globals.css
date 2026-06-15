@@ -433,6 +433,241 @@ h2 {
   flex-grow: 1;
 }
 
+/* ---------- project motifs ---------- */
+.motif {
+  position: relative;
+  height: 92px;
+  margin: -0.2rem -0.2rem 0.4rem;
+  border-radius: 0.8rem;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+/* each card tints its motif with an accent that matches the project's theme */
+.motif-scanner { --accent: #34d399; }
+.motif-ink { --accent: #f0abfc; }
+.motif-subscriptions { --accent: #93c5fd; }
+.motif-pitch { --accent: #86efac; }
+
+.project-card:hover .motif {
+  border-color: rgba(244, 242, 255, 0.28);
+}
+
+/* CVE Intelligence — scanner */
+.motif--scanner {
+  background: radial-gradient(120% 140% at 50% 0%, rgba(52, 211, 153, 0.1), rgba(0, 0, 0, 0.3));
+}
+
+.scan-grid {
+  position: absolute;
+  inset: 12px 16px;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: 1fr;
+  align-items: center;
+  justify-items: center;
+}
+
+.scan-grid .dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  opacity: 0.5;
+  animation: dot-pulse 3.4s ease-in-out infinite;
+}
+
+.scan-grid .sev-0 { background: rgba(148, 163, 184, 0.5); }
+.scan-grid .sev-1 { background: #fbbf24; }
+.scan-grid .sev-2 { background: #fb923c; }
+.scan-grid .sev-3 { background: #f87171; box-shadow: 0 0 6px rgba(248, 113, 113, 0.7); }
+
+@keyframes dot-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.9; }
+}
+
+.scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 22px;
+  top: -22px;
+  background: linear-gradient(rgba(52, 211, 153, 0), rgba(52, 211, 153, 0.35));
+  border-bottom: 1px solid rgba(52, 211, 153, 0.9);
+  animation: scan-sweep 3.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes scan-sweep {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(114px); }
+}
+
+.scan-tag {
+  position: absolute;
+  bottom: 6px;
+  left: 10px;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(52, 211, 153, 0.85);
+  font-family: var(--font-body);
+}
+
+/* Fantasy Writer — ink flourish */
+.motif--ink {
+  color: var(--accent);
+  background: radial-gradient(120% 140% at 0% 0%, rgba(240, 171, 252, 0.12), rgba(0, 0, 0, 0.32));
+}
+
+.motif--ink svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.ink-path {
+  stroke-dasharray: 460;
+  stroke-dashoffset: 460;
+  filter: drop-shadow(0 0 3px rgba(240, 171, 252, 0.5));
+  animation: ink-write 5s ease-in-out infinite;
+}
+
+@keyframes ink-write {
+  0% { stroke-dashoffset: 460; }
+  55% { stroke-dashoffset: 0; }
+  80% { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+.ink-caret {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 2px;
+  height: 16px;
+  background: var(--accent);
+  transform: translateY(-50%);
+  animation: caret-blink 1s steps(1) infinite;
+}
+
+@keyframes caret-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Nix it! — subscription rows */
+.motif--subs {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 14px;
+  background: radial-gradient(120% 140% at 100% 0%, rgba(147, 197, 253, 0.1), rgba(0, 0, 0, 0.3));
+}
+
+.sub-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.66rem;
+  color: var(--ink-dim);
+}
+
+.sub-icon {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: rgba(147, 197, 253, 0.55);
+  flex-shrink: 0;
+}
+
+.sub-label {
+  flex-grow: 1;
+  letter-spacing: 0.04em;
+}
+
+.sub-price {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-faint);
+}
+
+.sub-strike {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 1px;
+  width: 100%;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.sub-row.nixed .sub-strike {
+  animation: strike 4s ease-in-out infinite;
+}
+
+.sub-row.nixed {
+  animation: nix-fade 4s ease-in-out infinite;
+}
+
+@keyframes strike {
+  0%, 30% { transform: scaleX(0); }
+  45%, 80% { transform: scaleX(1); }
+  100% { transform: scaleX(0); }
+}
+
+@keyframes nix-fade {
+  0%, 30% { opacity: 1; }
+  55%, 80% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+/* Mundialiten — pitch with arcing ball */
+.motif--pitch {
+  color: rgba(134, 239, 172, 0.55);
+  background: radial-gradient(120% 160% at 50% 120%, rgba(134, 239, 172, 0.12), rgba(0, 0, 0, 0.34));
+}
+
+.motif--pitch svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.pitch-lines { opacity: 0.6; }
+
+.pitch-ball {
+  color: #f8fafc;
+  filter: drop-shadow(0 0 4px rgba(248, 250, 252, 0.8));
+  offset-path: path("M 28 56 Q 120 -10 214 40");
+  offset-rotate: 0deg;
+  animation: ball-arc 3.6s cubic-bezier(0.4, 0, 0.5, 1) infinite;
+}
+
+@keyframes ball-arc {
+  0% { offset-distance: 0%; opacity: 0; }
+  10% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { offset-distance: 100%; opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scan-grid .dot,
+  .scan-line,
+  .ink-path,
+  .ink-caret,
+  .sub-row.nixed,
+  .sub-row.nixed .sub-strike,
+  .pitch-ball {
+    animation: none !important;
+  }
+  .ink-path { stroke-dashoffset: 0; }
+}
+
 .stack {
   list-style: none;
   display: flex;

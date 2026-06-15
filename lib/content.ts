@@ -167,12 +167,15 @@ export const experience: Job[] = [
   },
 ];
 
+export type ProjectMotif = "scanner" | "ink" | "subscriptions" | "pitch";
+
 export interface Project {
   name: string;
   tagline: string;
   description: string;
   stack: string[];
   url: string;
+  motif: ProjectMotif;
 }
 
 export const projects: Project[] = [
@@ -183,6 +186,7 @@ export const projects: Project[] = [
       "A platform that tracks, enriches and prioritizes CVEs with AI — turning raw vulnerability feeds into actionable intelligence for security teams.",
     stack: ["TypeScript", "Next.js", "AI", "Security"],
     url: "https://cve-intelligence.vercel.app",
+    motif: "scanner",
   },
   {
     name: "Fantasy Writer",
@@ -191,6 +195,7 @@ export const projects: Project[] = [
       "A writing studio where AI helps worldbuild, outline and draft fantasy stories — storytelling and LLMs working in the same document.",
     stack: ["TypeScript", "Next.js", "LLM", "Creative AI"],
     url: "https://fantasywriter.vercel.app",
+    motif: "ink",
   },
   {
     name: "Nix it!",
@@ -199,6 +204,7 @@ export const projects: Project[] = [
       "An app to track and manage your subscriptions — see exactly what you pay, spot what you no longer use, and nix it before the next renewal.",
     stack: ["TypeScript", "Next.js", "Productivity"],
     url: "https://nixit.vercel.app",
+    motif: "subscriptions",
   },
   {
     name: "Mundialiten",
@@ -207,6 +213,7 @@ export const projects: Project[] = [
       "A companion app for the 2026 World Cup — fixtures, groups and predictions with friends, shipped just in time for kickoff.",
     stack: ["TypeScript", "Next.js", "Real-time"],
     url: "https://mundialiten.vercel.app",
+    motif: "pitch",
   },
 ];
 
