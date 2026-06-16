@@ -829,33 +829,54 @@ h2 {
 
 /* ---------- responsive ---------- */
 @media (max-width: 640px) {
-  /* compact top bar: full name left, language toggle + CTA right */
+  /* Two-row top bar that echoes desktop: brand + actions on top,
+     nav links centred underneath. */
   .site-nav {
-    padding: 0.7rem 1rem;
-  }
-
-  .site-nav nav {
-    display: none;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "brand actions"
+      "links links";
+    align-items: center;
+    row-gap: 0.5rem;
+    padding: 0.6rem 1rem 0.65rem;
   }
 
   .monogram {
-    font-size: 1rem;
+    grid-area: brand;
+    justify-self: start;
+    font-size: 1.05rem;
   }
 
   .nav-right {
+    grid-area: actions;
+    justify-self: end;
     gap: 0.5rem;
   }
 
+  .site-nav nav {
+    grid-area: links;
+    justify-self: stretch;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.35rem 1.05rem;
+  }
+
+  .site-nav nav a {
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+  }
+
   .nav-cta {
-    padding: 0.42rem 0.8rem;
-    font-size: 0.68rem;
-    letter-spacing: 0.1em;
+    padding: 0.4rem 0.78rem;
+    font-size: 0.66rem;
+    letter-spacing: 0.08em;
     white-space: nowrap;
   }
 
   .lang-toggle {
-    padding: 0.25rem 0.42rem;
-    gap: 0.3rem;
+    padding: 0.22rem 0.4rem;
+    gap: 0.28rem;
   }
 
   .flag-chip {
@@ -882,13 +903,6 @@ h2 {
   .job-head {
     flex-direction: column;
     align-items: flex-start;
-  }
-}
-
-/* very small screens: keep the toggle, let the name carry the brand */
-@media (max-width: 380px) {
-  .nav-cta {
-    display: none;
   }
 }
 
