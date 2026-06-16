@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { createContext, useContext, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
 import { getContent, type Content, type Lang } from "@/lib/content";
 
@@ -38,26 +31,11 @@ export default function LanguageProvider({ children }: { children: React.ReactNo
 
   const content = useMemo(() => getContent(lang), [lang]);
 
+  // The site always opens in English; toggling never persists across loads.
   const applyLang = (next: Lang) => {
     setLang(next);
     if (typeof document !== "undefined") document.documentElement.lang = next;
-    try {
-      localStorage.setItem("lang", next);
-    } catch {
-      /* ignore */
-    }
   };
-
-  // Restore a previously chosen language (no animation on first load).
-  useEffect(() => {
-    let stored: string | null = null;
-    try {
-      stored = localStorage.getItem("lang");
-    } catch {
-      /* ignore */
-    }
-    if (stored === "es" || stored === "en") applyLang(stored);
-  }, []);
 
   const toggle = () => {
     if (animating.current) return;
