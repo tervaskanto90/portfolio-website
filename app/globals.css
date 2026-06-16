@@ -258,6 +258,9 @@ h2 {
 
 /* ---------- hero ---------- */
 .hero {
+  /* svh = the *small* viewport, so the scroll hint always sits at the
+     visible bottom even while the mobile browser UI is showing */
+  min-height: 100svh;
   flex-direction: column;
   justify-content: center;
   text-align: center;
@@ -339,6 +342,7 @@ h2 {
   bottom: 2.2rem;
   left: 50%;
   transform: translateX(-50%);
+  white-space: nowrap;
   font-size: 0.78rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -888,11 +892,28 @@ h2 {
   .portrait {
     width: 72px;
     height: 72px;
-    margin-bottom: 1.3rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .hero-kicker {
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    margin-bottom: 1.4rem;
   }
 
   .hero-meta {
-    margin-top: 1.8rem;
+    margin-top: 1.6rem;
+  }
+
+  .hero-meta p {
+    font-size: 0.95rem;
+  }
+
+  /* keep the hint on one line and comfortably above the bottom edge */
+  .scroll-hint {
+    font-size: 0.62rem;
+    letter-spacing: 0.13em;
+    bottom: 1.5rem;
   }
 
   .chapter-number {
