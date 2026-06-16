@@ -87,7 +87,7 @@ export default function LanguageProvider({ children }: { children: React.ReactNo
     const word = wordRef.current;
 
     gsap.set(panel, { xPercent: enterFrom });
-    if (word) gsap.set(word, { opacity: 0, scale: 0.92 });
+    if (word) gsap.set(word, { opacity: 0, yPercent: 10 });
 
     const tl = gsap.timeline({
       onComplete: () => {
@@ -96,16 +96,20 @@ export default function LanguageProvider({ children }: { children: React.ReactNo
       },
     });
 
-    tl.to(panel, { xPercent: 0, duration: 0.55, ease: "power3.inOut" });
+    // Cover: the flag sweeps in and settles over the whole screen.
+    tl.to(panel, { xPercent: 0, duration: 0.85, ease: "power2.inOut" });
+    // Swap every string while fully hidden — the reflow happens behind the flag.
+    tl.add(() => applyLang(target));
     if (word) {
-      tl.to(word, { opacity: 1, scale: 1, duration: 0.3, ease: "power2.out" }, "-=0.28");
+      tl.to(word, { opacity: 1, yPercent: 0, duration: 0.5, ease: "power3.out" }, "-=0.42");
     }
-    tl.add(() => applyLang(target)); // swap all text while the flag covers the screen
-    tl.to({}, { duration: 0.14 }); // brief hold on the full flag
+    // Hold on the full flag so the language change lands cleanly.
+    tl.to({}, { duration: 0.55 });
     if (word) {
-      tl.to(word, { opacity: 0, duration: 0.25, ease: "power2.in" }, ">-0.05");
+      tl.to(word, { opacity: 0, yPercent: -8, duration: 0.35, ease: "power2.in" });
     }
-    tl.to(panel, { xPercent: exitTo, duration: 0.55, ease: "power3.inOut" }, "<");
+    // Reveal: the flag exits the far side, uncovering the new language.
+    tl.to(panel, { xPercent: exitTo, duration: 0.85, ease: "power2.inOut" }, "<");
   };
 
   return (
@@ -114,6 +118,8 @@ export default function LanguageProvider({ children }: { children: React.ReactNo
       <div className={`lang-overlay${active ? " active" : ""}`} aria-hidden="true">
         <div className="flag-panel" ref={panelRef}>
           {sweepFlag === "argentina" ? <ArgentinaFlag /> : <USAFlag />}
+          <span className="flag-cloth" />
+          <span className="flag-sheen" />
           <span className="flag-word" ref={wordRef}>
             {sweepLabel}
           </span>
@@ -148,84 +154,112 @@ export function LangToggle() {
 
 /* ---------------- full-screen flags ---------------- */
 
-function ArgentinaFlag() {
-  const rays = Array.from({ length: 32 }, (_, i) => {
-    const a = (i / 32) * Math.PI * 2;
-    const inner = 25;
-    const outer = 40;
-    const w = 0.05;
-    const x1 = 150 + Math.cos(a - w) * inner;
-    const y1 = 100 + Math.sin(a - w) * inner;
-    const x2 = 150 + Math.cos(a + w) * inner;
-    const y2 = 100 + Math.sin(a + w) * inner;
-    const xt = 150 + Math.cos(a) * outer;
-    const yt = 100 + Math.sin(a) * outer;
-    return <polygon key={i} points={`${x1},${y1} ${x2},${y2} ${xt},${yt}`} />;
-  });
-  return (
-    <svg className="flag-svg" viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice">
-      <rect width="300" height="200" fill="#fff" />
-      <rect width="300" height="66.7" fill="#74acdf" />
-      <rect width="300" height="66.7" y="133.3" fill="#74acdf" />
-      <g fill="#f6b40e" stroke="#85340a" strokeWidth="0.4">
-        {rays}
-        <circle cx="150" cy="100" r="25" fill="#f6b40e" stroke="#85340a" strokeWidth="0.6" />
-        <circle cx="150" cy="100" r="18" fill="none" stroke="#85340a" strokeWidth="0.5" opacity="0.5" />
-      </g>
-    </svg>
-  );
-}
+// viewBox ~16:10 so the slice crop on a full screen keeps proportions natural.
+const FW = 1200;
+const FH = 750;
 
-function USAFlag() {
-  const stripes = Array.from({ length: 13 }, (_, i) => (
-    <rect
-      key={i}
-      x="0"
-      y={(200 / 13) * i}
-      width="380"
-      height={200 / 13}
-      fill={i % 2 === 0 ? "#b22234" : "#fff"}
-    />
-  ));
-  const cantonW = 152;
-  const cantonH = (200 / 13) * 7;
-  const stars: React.ReactNode[] = [];
-  for (let row = 0; row < 9; row++) {
-    const isLong = row % 2 === 0; // rows of 6, then 5
-    const count = isLong ? 6 : 5;
-    const offsetX = isLong ? cantonW / 12 : cantonW / 6;
-    const stepX = cantonW / 6;
-    const y = (cantonH / 10) * (row + 1);
-    for (let c = 0; c < count; c++) {
-      const x = offsetX + c * stepX;
-      stars.push(<use key={`${row}-${c}`} href="#star" x={x} y={y} />);
+/* The Sol de Mayo: a face ringed by 32 rays alternating straight and wavy. */
+function SolDeMayo() {
+  const cx = FW / 2;
+  const cy = FH / 2;
+  const s = 5.0;
+  const gold = "#f5b324";
+  const goldDark = "#c8881a";
+  const face = "#e8a317";
+  const innerR = 26 * s;
+  const tipR = 46 * s;
+  const rays: React.ReactNode[] = [];
+  for (let i = 0; i < 32; i++) {
+    const a = (i / 32) * Math.PI * 2;
+    if (i % 2 === 0) {
+      const w = 0.055;
+      const x1 = cx + Math.cos(a - w) * innerR;
+      const y1 = cy + Math.sin(a - w) * innerR;
+      const x2 = cx + Math.cos(a + w) * innerR;
+      const y2 = cy + Math.sin(a + w) * innerR;
+      const xt = cx + Math.cos(a) * tipR;
+      const yt = cy + Math.sin(a) * tipR;
+      rays.push(
+        <polygon key={i} points={`${x1},${y1} ${x2},${y2} ${xt},${yt}`} fill={gold} stroke={goldDark} strokeWidth={0.6 * s} />
+      );
+    } else {
+      const mid = (innerR + tipR) / 2;
+      const x1 = cx + Math.cos(a) * innerR;
+      const y1 = cy + Math.sin(a) * innerR;
+      const xt = cx + Math.cos(a) * tipR;
+      const yt = cy + Math.sin(a) * tipR;
+      const px = cx + Math.cos(a + 0.13) * mid;
+      const py = cy + Math.sin(a + 0.13) * mid;
+      const qx = cx + Math.cos(a - 0.13) * mid;
+      const qy = cy + Math.sin(a - 0.13) * mid;
+      rays.push(
+        <path key={i} d={`M ${x1} ${y1} Q ${px} ${py} ${xt} ${yt} Q ${qx} ${qy} ${x1} ${y1} Z`} fill={gold} stroke={goldDark} strokeWidth={0.5 * s} />
+      );
     }
   }
+  const r = 24 * s;
+  const eyeY = cy - 4 * s;
   return (
-    <svg className="flag-svg" viewBox="0 0 380 200" preserveAspectRatio="xMidYMid slice">
-      <defs>
-        <g id="star">
-          <Star />
-        </g>
-      </defs>
-      {stripes}
-      <rect width={cantonW} height={cantonH} fill="#3c3b6e" />
-      <g fill="#fff">{stars}</g>
+    <g>
+      {rays}
+      <circle cx={cx} cy={cy} r={r} fill={face} stroke={goldDark} strokeWidth={1.2 * s} />
+      <circle cx={cx - 8 * s} cy={eyeY} r={1.8 * s} fill={goldDark} />
+      <circle cx={cx + 8 * s} cy={eyeY} r={1.8 * s} fill={goldDark} />
+      <path d={`M ${cx - 11 * s} ${eyeY - 5 * s} q ${5 * s} ${-3 * s} ${9 * s} 0`} fill="none" stroke={goldDark} strokeWidth={1.1 * s} />
+      <path d={`M ${cx + 2 * s} ${eyeY - 5 * s} q ${4.5 * s} ${-3 * s} ${9 * s} 0`} fill="none" stroke={goldDark} strokeWidth={1.1 * s} />
+      <path d={`M ${cx - 2.5 * s} ${cy} q ${2.5 * s} ${3 * s} ${5 * s} 0`} fill="none" stroke={goldDark} strokeWidth={1.3 * s} />
+      <path d={`M ${cx - 7 * s} ${cy + 8 * s} q ${7 * s} ${6 * s} ${14 * s} 0`} fill="none" stroke={goldDark} strokeWidth={1.4 * s} strokeLinecap="round" />
+    </g>
+  );
+}
+
+function ArgentinaFlag() {
+  return (
+    <svg className="flag-svg" viewBox={`0 0 ${FW} ${FH}`} preserveAspectRatio="xMidYMid slice">
+      <rect width={FW} height={FH} fill="#fff" />
+      <rect width={FW} height={FH / 3} fill="#75aadb" />
+      <rect width={FW} height={FH / 3} y={(2 * FH) / 3} fill="#75aadb" />
+      <SolDeMayo />
     </svg>
   );
 }
 
-/* A small 5-point star centred at the origin, scaled for the canton grid. */
-function Star() {
+/* A 5-point star centred at (cx, cy). */
+function star(cx: number, cy: number, R: number, key: string) {
   const pts: string[] = [];
-  const R = 5.2;
   const r = R * 0.382;
   for (let i = 0; i < 10; i++) {
     const rad = i % 2 === 0 ? R : r;
     const a = (Math.PI / 5) * i - Math.PI / 2;
-    pts.push(`${Math.cos(a) * rad},${Math.sin(a) * rad}`);
+    pts.push(`${(cx + Math.cos(a) * rad).toFixed(1)},${(cy + Math.sin(a) * rad).toFixed(1)}`);
   }
-  return <polygon points={pts.join(" ")} />;
+  return <polygon key={key} points={pts.join(" ")} fill="#fff" />;
+}
+
+function USAFlag() {
+  const stripes = Array.from({ length: 13 }, (_, i) => (
+    <rect key={i} x="0" y={(FH / 13) * i} width={FW} height={FH / 13} fill={i % 2 === 0 ? "#b22234" : "#fff"} />
+  ));
+  const cantonW = FW * 0.42;
+  const cantonH = (FH / 13) * 7;
+  const stars: React.ReactNode[] = [];
+  for (let row = 0; row < 9; row++) {
+    const long = row % 2 === 0;
+    const count = long ? 6 : 5;
+    const offX = long ? cantonW / 12 : cantonW / 6;
+    const stepX = cantonW / 6;
+    const y = (cantonH / 10) * (row + 1);
+    for (let c = 0; c < count; c++) {
+      stars.push(star(offX + c * stepX, y, cantonW / 45, `${row}-${c}`));
+    }
+  }
+  return (
+    <svg className="flag-svg" viewBox={`0 0 ${FW} ${FH}`} preserveAspectRatio="xMidYMid slice">
+      {stripes}
+      <rect width={cantonW} height={cantonH} fill="#3c3b6e" />
+      <g>{stars}</g>
+    </svg>
+  );
 }
 
 /* ---------------- mini flags for the toggle ---------------- */

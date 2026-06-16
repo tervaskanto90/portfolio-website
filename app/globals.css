@@ -181,7 +181,8 @@ a {
   justify-content: center;
   transform: translateX(100%);
   will-change: transform;
-  box-shadow: 0 0 120px rgba(0, 0, 0, 0.45);
+  /* soft feathered edges so the leading/trailing border never reads as a hard block */
+  box-shadow: 0 0 90px 30px rgba(0, 0, 0, 0.4), 0 0 0 60px rgba(0, 0, 0, 0.12);
 }
 
 .flag-svg {
@@ -189,6 +190,41 @@ a {
   inset: 0;
   width: 100%;
   height: 100%;
+}
+
+/* moving fabric folds — cheap, GPU-friendly impression of waving cloth */
+.flag-cloth {
+  position: absolute;
+  inset: -4%;
+  background:
+    repeating-linear-gradient(76deg, rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0.13) 6%, rgba(0, 0, 0, 0) 13%),
+    repeating-linear-gradient(102deg, rgba(255, 255, 255, 0) 0, rgba(255, 255, 255, 0.12) 7%, rgba(255, 255, 255, 0) 15%);
+  background-size: 220% 100%, 250% 100%;
+  mix-blend-mode: soft-light;
+  animation: cloth-wave 6.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes cloth-wave {
+  0% { background-position: 0% 0, 0% 0; transform: skewY(0deg); }
+  50% { background-position: 34% 0, -28% 0; transform: skewY(-0.5deg); }
+  100% { background-position: 0% 0, 0% 0; transform: skewY(0deg); }
+}
+
+/* a slow diagonal sheen drifting across, like light catching the fabric */
+.flag-sheen {
+  position: absolute;
+  inset: -20%;
+  background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.16) 50%, transparent 62%);
+  mix-blend-mode: screen;
+  animation: sheen-drift 6.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes sheen-drift {
+  0% { transform: translateX(-30%); opacity: 0.5; }
+  50% { transform: translateX(30%); opacity: 0.9; }
+  100% { transform: translateX(-30%); opacity: 0.5; }
 }
 
 .flag-word {
@@ -199,7 +235,9 @@ a {
   font-size: clamp(2.4rem, 10vw, 7rem);
   color: #fff;
   letter-spacing: 0.01em;
-  text-shadow: 0 6px 40px rgba(0, 0, 0, 0.5);
+  /* dark halo keeps the word legible over any stripe — even white ones */
+  text-shadow: 0 0 24px rgba(0, 0, 0, 0.65), 0 0 55px rgba(0, 0, 0, 0.5),
+    0 4px 14px rgba(0, 0, 0, 0.55);
 }
 
 /* ---------- shared section layout ---------- */
