@@ -4,19 +4,16 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
-import {
-  chapters,
-  experience,
-  projects,
-  education,
-  contact,
-} from "@/lib/content";
+import { contact } from "@/lib/content";
 import ProjectMotif from "@/components/ProjectMotif";
+import { useI18n, LangToggle } from "@/components/LanguageProvider";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Story() {
   const root = useRef<HTMLDivElement>(null);
+  const { content: t } = useI18n();
+  const { nav, hero, chapters, journey, work, epilogue, experience, projects, education } = t;
 
   useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -112,14 +109,17 @@ export default function Story() {
       <header className="site-nav">
         <a href="#top" className="monogram">Octavio Boggiano</a>
         <nav>
-          <a href="#voice">Expertise</a>
-          <a href="#journey">Journey</a>
-          <a href="#work">Work</a>
-          <a href="#contact">Contact</a>
+          <a href="#voice">{nav.expertise}</a>
+          <a href="#journey">{nav.journey}</a>
+          <a href="#work">{nav.work}</a>
+          <a href="#contact">{nav.contact}</a>
         </nav>
-        <a className="nav-cta" href={`mailto:${contact.email}`}>
-          Let&apos;s talk
-        </a>
+        <div className="nav-right">
+          <LangToggle />
+          <a className="nav-cta" href={`mailto:${contact.email}`}>
+            {nav.cta}
+          </a>
+        </div>
       </header>
 
       {/* CH 0 — HERO */}
@@ -134,22 +134,24 @@ export default function Story() {
               e.currentTarget.style.display = "none";
             }}
           />
-          <p className="hero-kicker">Octavio Boggiano · AI Solutions Architect</p>
+          <p className="hero-kicker">{hero.kicker}</p>
           <h1 className="hero-title">
-            <span className="mask"><span className="line">Designing intelligent</span></span>
-            <span className="mask"><span className="line">systems that <em>listen,</em></span></span>
-            <span className="mask"><span className="line"><em>speak</em> &amp; act.</span></span>
+            {hero.lines.map((segs, i) => (
+              <span className="mask" key={i}>
+                <span className="line">
+                  {segs.map((s, j) => (s.em ? <em key={j}>{s.t}</em> : <span key={j}>{s.t}</span>))}
+                </span>
+              </span>
+            ))}
           </h1>
           <div className="hero-meta">
             <p>
-              AI Solutions Architect with <strong>more than a decade</strong> of
-              experience across voice, cybersecurity and unified communications —
-              designing systems where enterprise communication meets AI.
+              {hero.metaLead.map((s, i) => (s.em ? <strong key={i}>{s.t}</strong> : <span key={i}>{s.t}</span>))}
             </p>
-            <p className="hero-location">Buenos Aires → the world · EN / ES native</p>
+            <p className="hero-location">{hero.metaLocation}</p>
           </div>
         </div>
-        <div className="scroll-hint">scroll to begin the story ↓</div>
+        <div className="scroll-hint">{t.scrollHint}</div>
       </section>
 
       {/* CHAPTERS */}
@@ -178,8 +180,8 @@ export default function Story() {
       <section className="journey" id="journey" data-chapter={chapters.length + 1}>
         <span className="chapter-number" aria-hidden="true">06</span>
         <div className="chapter-body wide">
-          <p className="kicker" data-reveal>The Journey</p>
-          <h2 data-reveal>More than a decade of building, securing &amp; connecting</h2>
+          <p className="kicker" data-reveal>{journey.kicker}</p>
+          <h2 data-reveal>{journey.title}</h2>
           <div className="timeline">
             {experience.map((job) => (
               <article className="job" key={`${job.company}-${job.period}`} data-reveal>
@@ -201,7 +203,7 @@ export default function Story() {
             ))}
           </div>
           <p className="education" data-reveal>
-            <span className="kicker-inline">Education</span> {education.degree} ·{" "}
+            <span className="kicker-inline">{journey.educationLabel}</span> {education.degree} ·{" "}
             {education.school}, {education.location} · {education.period}
           </p>
         </div>
@@ -211,8 +213,8 @@ export default function Story() {
       <section className="work" id="work" data-chapter={chapters.length + 2}>
         <span className="chapter-number" aria-hidden="true">07</span>
         <div className="chapter-body wide">
-          <p className="kicker" data-reveal>Selected Work</p>
-          <h2 data-reveal>Things I&apos;ve shipped</h2>
+          <p className="kicker" data-reveal>{work.kicker}</p>
+          <h2 data-reveal>{work.title}</h2>
           <div className="project-grid" data-reveal-group>
             {projects.map((p) => (
               <a
@@ -243,9 +245,9 @@ export default function Story() {
       {/* EPILOGUE */}
       <section className="epilogue" id="contact" data-chapter={chapters.length + 3}>
         <div className="chapter-body">
-          <p className="kicker" data-reveal>Epilogue</p>
+          <p className="kicker" data-reveal>{epilogue.kicker}</p>
           <h2 data-reveal>
-            Every great system starts<br />with a conversation.
+            {epilogue.titleLines[0]}<br />{epilogue.titleLines[1]}
           </h2>
           <a className="big-mail" href={`mailto:${contact.email}`} data-reveal>
             {contact.email}
@@ -256,7 +258,7 @@ export default function Story() {
             <a href={contact.twitter} target="_blank" rel="noreferrer">Twitter</a>
           </div>
           <footer>
-            <p>{contact.location} · {contact.languages}</p>
+            <p>{contact.location} · {t.languagesLabel}</p>
             <p>© {new Date().getFullYear()} Octavio Boggiano</p>
           </footer>
         </div>
