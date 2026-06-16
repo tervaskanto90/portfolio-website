@@ -30,8 +30,10 @@ const TINT: Record<Lang, string> = { es: "#7fb0de", en: "#3f3e6e" };
 
 export default function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLang] = useState<Lang>("en");
+  const [sweepLabel, setSweepLabel] = useState("Español");
   const contentRef = useRef<HTMLDivElement>(null);
   const tintRef = useRef<HTMLDivElement>(null);
+  const wordRef = useRef<HTMLDivElement>(null);
   const animating = useRef(false);
 
   const content = useMemo(() => getContent(lang), [lang]);
@@ -72,17 +74,23 @@ export default function LanguageProvider({ children }: { children: React.ReactNo
     }
 
     const tint = tintRef.current;
+    const word = wordRef.current;
     if (tint) tint.style.background = TINT[target];
+    setSweepLabel(target === "es" ? "Español" : "English");
 
     animating.current = true;
 
     // Drive everything off a plain object so blur interpolates reliably.
-    const o = { blur: 0, fade: 1, scale: 1, tint: 0 };
+    const o = { blur: 0, fade: 1, scale: 1, tint: 0, word: 0 };
     const render = () => {
       el.style.filter = `blur(${o.blur}px)`;
       el.style.opacity = `${o.fade}`;
       el.style.transform = `scale(${o.scale})`;
       if (tint) tint.style.opacity = `${o.tint}`;
+      if (word) {
+        word.style.opacity = `${o.word}`;
+        word.style.transform = `scale(${0.9 + 0.1 * o.word})`;
+      }
     };
 
     const tl = gsap.timeline({
@@ -91,29 +99,34 @@ export default function LanguageProvider({ children }: { children: React.ReactNo
         el.style.opacity = "";
         el.style.transform = "";
         if (tint) tint.style.opacity = "";
+        if (word) word.style.opacity = "0";
         animating.current = false;
       },
     });
 
-    // Frost out — text becomes an unreadable blur, so the swap is invisible.
+    // Frost out: page dissolves to nothing while the language word rises in.
     tl.to(o, {
-      blur: 18,
-      fade: 0.16,
-      scale: 0.99,
-      tint: 0.16,
-      duration: 0.55,
+      blur: 20,
+      fade: 0,
+      scale: 0.985,
+      tint: 0.18,
+      word: 1,
+      duration: 0.62,
       ease: "power2.inOut",
       onUpdate: render,
     });
-    tl.add(() => applyLang(target)); // swap every string while fully frosted
-    tl.to({}, { duration: 0.12 }); // a beat of stillness
-    // Settle back in, crisp, in the new language.
+    // Swap with the page fully transparent — there is no old text to "pop".
+    tl.add(() => applyLang(target));
+    // Hold on the word so the change lands as a deliberate beat, not a jump.
+    tl.to({}, { duration: 0.34 });
+    // Settle back in, crisp, in the new language; the word dissolves away.
     tl.to(o, {
       blur: 0,
       fade: 1,
       scale: 1,
       tint: 0,
-      duration: 0.75,
+      word: 0,
+      duration: 0.78,
       ease: "power2.out",
       onUpdate: render,
     });
@@ -125,6 +138,9 @@ export default function LanguageProvider({ children }: { children: React.ReactNo
         {children}
       </div>
       <div ref={tintRef} className="lang-tint" aria-hidden="true" />
+      <div ref={wordRef} className="lang-word" aria-hidden="true">
+        {sweepLabel}
+      </div>
     </Ctx.Provider>
   );
 }
