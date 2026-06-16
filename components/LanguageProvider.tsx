@@ -11,8 +11,6 @@ import {
 import gsap from "gsap";
 import { getContent, type Content, type Lang } from "@/lib/content";
 
-type SweepFlag = "argentina" | "usa";
-
 interface I18nCtx {
   lang: Lang;
   content: Content;
@@ -27,14 +25,13 @@ export function useI18n() {
   return ctx;
 }
 
+// A whisper of national colour during the fade — sky-blue for ES, navy for EN.
+const TINT: Record<Lang, string> = { es: "#7fb0de", en: "#3f3e6e" };
+
 export default function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLang] = useState<Lang>("en");
-  const [active, setActive] = useState(false);
-  const [sweepFlag, setSweepFlag] = useState<SweepFlag>("argentina");
-  const [sweepLabel, setSweepLabel] = useState("Español");
-
-  const panelRef = useRef<HTMLDivElement>(null);
-  const wordRef = useRef<HTMLSpanElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const tintRef = useRef<HTMLDivElement>(null);
   const animating = useRef(false);
 
   const content = useMemo(() => getContent(lang), [lang]);
@@ -49,7 +46,7 @@ export default function LanguageProvider({ children }: { children: React.ReactNo
     }
   };
 
-  // Restore a previously chosen language (no sweep on first load).
+  // Restore a previously chosen language (no animation on first load).
   useEffect(() => {
     let stored: string | null = null;
     try {
@@ -63,68 +60,71 @@ export default function LanguageProvider({ children }: { children: React.ReactNo
   const toggle = () => {
     if (animating.current) return;
     const target: Lang = lang === "en" ? "es" : "en";
-    const flag: SweepFlag = target === "es" ? "argentina" : "usa";
-    const label = target === "es" ? "Español" : "English";
 
     const reduce =
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    if (reduce || !panelRef.current) {
+    const el = contentRef.current;
+    if (reduce || !el) {
       applyLang(target);
       return;
     }
 
+    const tint = tintRef.current;
+    if (tint) tint.style.background = TINT[target];
+
     animating.current = true;
-    setSweepFlag(flag);
-    setSweepLabel(label);
-    setActive(true);
 
-    // To Spanish: Argentina sweeps right → left. To English: USA sweeps left → right.
-    const enterFrom = target === "es" ? 100 : -100;
-    const exitTo = target === "es" ? -100 : 100;
-    const panel = panelRef.current;
-    const word = wordRef.current;
-
-    gsap.set(panel, { xPercent: enterFrom });
-    if (word) gsap.set(word, { opacity: 0, yPercent: 10 });
+    // Drive everything off a plain object so blur interpolates reliably.
+    const o = { blur: 0, fade: 1, scale: 1, tint: 0 };
+    const render = () => {
+      el.style.filter = `blur(${o.blur}px)`;
+      el.style.opacity = `${o.fade}`;
+      el.style.transform = `scale(${o.scale})`;
+      if (tint) tint.style.opacity = `${o.tint}`;
+    };
 
     const tl = gsap.timeline({
       onComplete: () => {
-        setActive(false);
+        el.style.filter = "";
+        el.style.opacity = "";
+        el.style.transform = "";
+        if (tint) tint.style.opacity = "";
         animating.current = false;
       },
     });
 
-    // Cover: the flag sweeps in and settles over the whole screen.
-    tl.to(panel, { xPercent: 0, duration: 0.85, ease: "power2.inOut" });
-    // Swap every string while fully hidden — the reflow happens behind the flag.
-    tl.add(() => applyLang(target));
-    if (word) {
-      tl.to(word, { opacity: 1, yPercent: 0, duration: 0.5, ease: "power3.out" }, "-=0.42");
-    }
-    // Hold on the full flag so the language change lands cleanly.
-    tl.to({}, { duration: 0.55 });
-    if (word) {
-      tl.to(word, { opacity: 0, yPercent: -8, duration: 0.35, ease: "power2.in" });
-    }
-    // Reveal: the flag exits the far side, uncovering the new language.
-    tl.to(panel, { xPercent: exitTo, duration: 0.85, ease: "power2.inOut" }, "<");
+    // Frost out — text becomes an unreadable blur, so the swap is invisible.
+    tl.to(o, {
+      blur: 18,
+      fade: 0.16,
+      scale: 0.99,
+      tint: 0.16,
+      duration: 0.55,
+      ease: "power2.inOut",
+      onUpdate: render,
+    });
+    tl.add(() => applyLang(target)); // swap every string while fully frosted
+    tl.to({}, { duration: 0.12 }); // a beat of stillness
+    // Settle back in, crisp, in the new language.
+    tl.to(o, {
+      blur: 0,
+      fade: 1,
+      scale: 1,
+      tint: 0,
+      duration: 0.75,
+      ease: "power2.out",
+      onUpdate: render,
+    });
   };
 
   return (
     <Ctx.Provider value={{ lang, content, toggle }}>
-      {children}
-      <div className={`lang-overlay${active ? " active" : ""}`} aria-hidden="true">
-        <div className="flag-panel" ref={panelRef}>
-          {sweepFlag === "argentina" ? <ArgentinaFlag /> : <USAFlag />}
-          <span className="flag-cloth" />
-          <span className="flag-sheen" />
-          <span className="flag-word" ref={wordRef}>
-            {sweepLabel}
-          </span>
-        </div>
+      <div ref={contentRef} className="lang-content">
+        {children}
       </div>
+      <div ref={tintRef} className="lang-tint" aria-hidden="true" />
     </Ctx.Provider>
   );
 }
@@ -151,118 +151,6 @@ export function LangToggle() {
     </button>
   );
 }
-
-/* ---------------- full-screen flags ---------------- */
-
-// viewBox ~16:10 so the slice crop on a full screen keeps proportions natural.
-const FW = 1200;
-const FH = 750;
-
-/* The Sol de Mayo: a face ringed by 32 rays alternating straight and wavy. */
-function SolDeMayo() {
-  const cx = FW / 2;
-  const cy = FH / 2;
-  const s = 5.0;
-  const gold = "#f5b324";
-  const goldDark = "#c8881a";
-  const face = "#e8a317";
-  const innerR = 26 * s;
-  const tipR = 46 * s;
-  const rays: React.ReactNode[] = [];
-  for (let i = 0; i < 32; i++) {
-    const a = (i / 32) * Math.PI * 2;
-    if (i % 2 === 0) {
-      const w = 0.055;
-      const x1 = cx + Math.cos(a - w) * innerR;
-      const y1 = cy + Math.sin(a - w) * innerR;
-      const x2 = cx + Math.cos(a + w) * innerR;
-      const y2 = cy + Math.sin(a + w) * innerR;
-      const xt = cx + Math.cos(a) * tipR;
-      const yt = cy + Math.sin(a) * tipR;
-      rays.push(
-        <polygon key={i} points={`${x1},${y1} ${x2},${y2} ${xt},${yt}`} fill={gold} stroke={goldDark} strokeWidth={0.6 * s} />
-      );
-    } else {
-      const mid = (innerR + tipR) / 2;
-      const x1 = cx + Math.cos(a) * innerR;
-      const y1 = cy + Math.sin(a) * innerR;
-      const xt = cx + Math.cos(a) * tipR;
-      const yt = cy + Math.sin(a) * tipR;
-      const px = cx + Math.cos(a + 0.13) * mid;
-      const py = cy + Math.sin(a + 0.13) * mid;
-      const qx = cx + Math.cos(a - 0.13) * mid;
-      const qy = cy + Math.sin(a - 0.13) * mid;
-      rays.push(
-        <path key={i} d={`M ${x1} ${y1} Q ${px} ${py} ${xt} ${yt} Q ${qx} ${qy} ${x1} ${y1} Z`} fill={gold} stroke={goldDark} strokeWidth={0.5 * s} />
-      );
-    }
-  }
-  const r = 24 * s;
-  const eyeY = cy - 4 * s;
-  return (
-    <g>
-      {rays}
-      <circle cx={cx} cy={cy} r={r} fill={face} stroke={goldDark} strokeWidth={1.2 * s} />
-      <circle cx={cx - 8 * s} cy={eyeY} r={1.8 * s} fill={goldDark} />
-      <circle cx={cx + 8 * s} cy={eyeY} r={1.8 * s} fill={goldDark} />
-      <path d={`M ${cx - 11 * s} ${eyeY - 5 * s} q ${5 * s} ${-3 * s} ${9 * s} 0`} fill="none" stroke={goldDark} strokeWidth={1.1 * s} />
-      <path d={`M ${cx + 2 * s} ${eyeY - 5 * s} q ${4.5 * s} ${-3 * s} ${9 * s} 0`} fill="none" stroke={goldDark} strokeWidth={1.1 * s} />
-      <path d={`M ${cx - 2.5 * s} ${cy} q ${2.5 * s} ${3 * s} ${5 * s} 0`} fill="none" stroke={goldDark} strokeWidth={1.3 * s} />
-      <path d={`M ${cx - 7 * s} ${cy + 8 * s} q ${7 * s} ${6 * s} ${14 * s} 0`} fill="none" stroke={goldDark} strokeWidth={1.4 * s} strokeLinecap="round" />
-    </g>
-  );
-}
-
-function ArgentinaFlag() {
-  return (
-    <svg className="flag-svg" viewBox={`0 0 ${FW} ${FH}`} preserveAspectRatio="xMidYMid slice">
-      <rect width={FW} height={FH} fill="#fff" />
-      <rect width={FW} height={FH / 3} fill="#75aadb" />
-      <rect width={FW} height={FH / 3} y={(2 * FH) / 3} fill="#75aadb" />
-      <SolDeMayo />
-    </svg>
-  );
-}
-
-/* A 5-point star centred at (cx, cy). */
-function star(cx: number, cy: number, R: number, key: string) {
-  const pts: string[] = [];
-  const r = R * 0.382;
-  for (let i = 0; i < 10; i++) {
-    const rad = i % 2 === 0 ? R : r;
-    const a = (Math.PI / 5) * i - Math.PI / 2;
-    pts.push(`${(cx + Math.cos(a) * rad).toFixed(1)},${(cy + Math.sin(a) * rad).toFixed(1)}`);
-  }
-  return <polygon key={key} points={pts.join(" ")} fill="#fff" />;
-}
-
-function USAFlag() {
-  const stripes = Array.from({ length: 13 }, (_, i) => (
-    <rect key={i} x="0" y={(FH / 13) * i} width={FW} height={FH / 13} fill={i % 2 === 0 ? "#b22234" : "#fff"} />
-  ));
-  const cantonW = FW * 0.42;
-  const cantonH = (FH / 13) * 7;
-  const stars: React.ReactNode[] = [];
-  for (let row = 0; row < 9; row++) {
-    const long = row % 2 === 0;
-    const count = long ? 6 : 5;
-    const offX = long ? cantonW / 12 : cantonW / 6;
-    const stepX = cantonW / 6;
-    const y = (cantonH / 10) * (row + 1);
-    for (let c = 0; c < count; c++) {
-      stars.push(star(offX + c * stepX, y, cantonW / 45, `${row}-${c}`));
-    }
-  }
-  return (
-    <svg className="flag-svg" viewBox={`0 0 ${FW} ${FH}`} preserveAspectRatio="xMidYMid slice">
-      {stripes}
-      <rect width={cantonW} height={cantonH} fill="#3c3b6e" />
-      <g>{stars}</g>
-    </svg>
-  );
-}
-
-/* ---------------- mini flags for the toggle ---------------- */
 
 function SpainMini() {
   return (
