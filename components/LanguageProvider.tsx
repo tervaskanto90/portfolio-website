@@ -8,6 +8,7 @@ interface I18nCtx {
   lang: Lang;
   content: Content;
   toggle: () => void;
+  navRef: React.RefObject<HTMLElement | null>;
 }
 
 const Ctx = createContext<I18nCtx | null>(null);
@@ -21,9 +22,16 @@ export function useI18n() {
 // A whisper of national colour during the fade — sky-blue for ES, navy for EN.
 const TINT: Record<Lang, string> = { es: "#7fb0de", en: "#3f3e6e" };
 
-export default function LanguageProvider({ children }: { children: React.ReactNode }) {
+export default function LanguageProvider({
+  nav,
+  children,
+}: {
+  nav?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   const [lang, setLang] = useState<Lang>("en");
   const [sweepLabel, setSweepLabel] = useState("Español");
+  const navRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const tintRef = useRef<HTMLDivElement>(null);
   const wordRef = useRef<HTMLDivElement>(null);
@@ -51,6 +59,7 @@ export default function LanguageProvider({ children }: { children: React.ReactNo
       return;
     }
 
+    const navEl = navRef.current;
     const tint = tintRef.current;
     const word = wordRef.current;
     if (tint) tint.style.background = TINT[target];
@@ -64,6 +73,11 @@ export default function LanguageProvider({ children }: { children: React.ReactNo
       el.style.filter = `blur(${o.blur}px)`;
       el.style.opacity = `${o.fade}`;
       el.style.transform = `scale(${o.scale})`;
+      // The nav frosts on itself (never via an ancestor) so it stays fixed.
+      if (navEl) {
+        navEl.style.filter = `blur(${o.blur}px)`;
+        navEl.style.opacity = `${o.fade}`;
+      }
       if (tint) tint.style.opacity = `${o.tint}`;
       if (word) {
         word.style.opacity = `${o.word}`;
@@ -76,6 +90,10 @@ export default function LanguageProvider({ children }: { children: React.ReactNo
         el.style.filter = "";
         el.style.opacity = "";
         el.style.transform = "";
+        if (navEl) {
+          navEl.style.filter = "";
+          navEl.style.opacity = "";
+        }
         if (tint) tint.style.opacity = "";
         if (word) word.style.opacity = "0";
         animating.current = false;
@@ -111,7 +129,8 @@ export default function LanguageProvider({ children }: { children: React.ReactNo
   };
 
   return (
-    <Ctx.Provider value={{ lang, content, toggle }}>
+    <Ctx.Provider value={{ lang, content, toggle, navRef }}>
+      {nav}
       <div ref={contentRef} className="lang-content">
         {children}
       </div>

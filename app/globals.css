@@ -4,8 +4,9 @@
   --ink-faint: rgba(244, 242, 255, 0.38);
   --line: rgba(244, 242, 255, 0.14);
   --glass: rgba(10, 8, 28, 0.35);
-  --font-display: "Instrument Serif", georgia, serif;
-  --font-body: "Space Grotesk", system-ui, sans-serif;
+  /* the *-face variables come from next/font (self-hosted, preloaded) */
+  --font-display: var(--font-display-face, "Instrument Serif"), georgia, serif;
+  --font-body: var(--font-body-face, "Space Grotesk"), system-ui, sans-serif;
 }
 
 * {
@@ -42,6 +43,13 @@ a {
   width: 100%;
   height: 100%;
   z-index: -1;
+  /* fades in once WebGL paints its first frame, out of the same dark base */
+  opacity: 0;
+  transition: opacity 1.6s ease;
+}
+
+.fluid-canvas.on {
+  opacity: 1;
 }
 
 /* ---------- nav ---------- */
@@ -159,9 +167,10 @@ a {
 
 /* ---------- language cross-fade ---------- */
 .lang-content {
-  /* gsap drives filter/opacity/transform inline during the language fade */
+  /* gsap drives filter/opacity/transform inline during the language fade.
+     No will-change here: it would create a containing block for fixed
+     descendants for good, and nothing fixed may live inside this wrapper. */
   transform-origin: center 38%;
-  will-change: filter, opacity, transform;
 }
 
 /* a whisper of national colour that breathes in and out under the frost */
@@ -353,6 +362,77 @@ h2 {
 @keyframes drift {
   0%, 100% { transform: translate(-50%, 0); }
   50% { transform: translate(-50%, 8px); }
+}
+
+/* ---------- first-load intro ---------- */
+/* .intro is set by an inline head script (so visitors without JS still see
+   everything); .ready once the web fonts have loaded. Until then the first
+   viewport stays dark, so text never paints in a fallback face and nothing
+   appears only to be hidden again. */
+.intro:not(.ready) .site-nav,
+.intro:not(.ready) .portrait,
+.intro:not(.ready) .hero-kicker,
+.intro:not(.ready) .hero-title,
+.intro:not(.ready) .hero-meta,
+.intro:not(.ready) .scroll-hint {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* backwards fill: once done, the nav is free for the language fade */
+  .intro.ready .site-nav {
+    animation: intro-fade 1.1s 0.15s ease-out backwards;
+  }
+
+  .intro.ready .portrait {
+    animation: intro-portrait 0.9s 0.1s cubic-bezier(0.215, 0.61, 0.355, 1) both;
+  }
+
+  .intro.ready .hero-kicker {
+    animation: intro-rise 0.9s 0.2s cubic-bezier(0.215, 0.61, 0.355, 1) both;
+  }
+
+  .intro.ready .hero-title .line {
+    animation: intro-line 1.2s 0.4s cubic-bezier(0.215, 0.61, 0.355, 1) both;
+  }
+
+  .intro.ready .hero-title .mask:nth-child(2) .line {
+    animation-delay: 0.52s;
+  }
+
+  .intro.ready .hero-title .mask:nth-child(3) .line {
+    animation-delay: 0.64s;
+  }
+
+  .intro.ready .hero-meta {
+    animation: intro-fade 1s 1.1s ease-out both;
+  }
+
+  .intro.ready .scroll-hint {
+    animation: intro-hint 1s 1.4s ease-out both, drift 2.6s ease-in-out infinite;
+  }
+}
+
+@keyframes intro-fade {
+  from { opacity: 0; }
+}
+
+@keyframes intro-rise {
+  from { opacity: 0; transform: translateY(24px); }
+}
+
+@keyframes intro-portrait {
+  from { opacity: 0; transform: scale(0.9); }
+}
+
+/* 130% clears the descender padding on .mask, so no sliver peeks out */
+@keyframes intro-line {
+  from { transform: translateY(130%); }
+}
+
+@keyframes intro-hint {
+  from { opacity: 0; }
+  to { opacity: 0.7; }
 }
 
 /* ---------- chips ---------- */

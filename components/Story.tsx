@@ -6,14 +6,14 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import { contact } from "@/lib/content";
 import ProjectMotif from "@/components/ProjectMotif";
-import { useI18n, LangToggle } from "@/components/LanguageProvider";
+import { useI18n } from "@/components/LanguageProvider";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Story() {
   const root = useRef<HTMLDivElement>(null);
   const { content: t } = useI18n();
-  const { nav, hero, chapters, journey, work, epilogue, experience, projects, education } = t;
+  const { hero, chapters, journey, work, epilogue, experience, projects, education } = t;
 
   useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -74,27 +74,21 @@ export default function Story() {
         );
       });
 
-      // hero entrance
-      gsap
-        .timeline({ defaults: { ease: "power3.out" } })
-        .fromTo(".portrait", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.9 }, 0.1)
-        .fromTo(".hero-kicker", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.9 }, 0.2)
-        .fromTo(
-          ".hero-title .line",
-          { yPercent: 110 },
-          { yPercent: 0, duration: 1.2, stagger: 0.12 },
-          0.4
-        )
-        .fromTo(".hero-meta", { opacity: 0 }, { opacity: 1, duration: 1 }, 1.1)
-        .fromTo(".scroll-hint", { opacity: 0 }, { opacity: 0.7, duration: 1 }, 1.4);
+      // The hero entrance is pure CSS (see "first-load intro" in globals.css),
+      // so it never waits on — or gets reset by — this bundle hydrating.
 
-      // hero drifts away as you scroll into the story
-      gsap.to(".hero-inner", {
-        opacity: 0,
-        y: -120,
-        ease: "none",
-        scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom 35%", scrub: true },
-      });
+      // hero drifts away as you scroll into the story (explicit start values,
+      // so it never captures a mid-intro opacity)
+      gsap.fromTo(
+        ".hero-inner",
+        { opacity: 1, y: 0 },
+        {
+          opacity: 0,
+          y: -120,
+          ease: "none",
+          scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom 35%", scrub: true },
+        }
+      );
     }, root);
 
     return () => {
@@ -106,22 +100,6 @@ export default function Story() {
 
   return (
     <div ref={root}>
-      <header className="site-nav">
-        <a href="#top" className="monogram">Octavio Boggiano</a>
-        <nav>
-          <a href="#voice">{nav.expertise}</a>
-          <a href="#journey">{nav.journey}</a>
-          <a href="#work">{nav.work}</a>
-          <a href="#contact">{nav.contact}</a>
-        </nav>
-        <div className="nav-right">
-          <LangToggle />
-          <a className="nav-cta" href={`mailto:${contact.email}`}>
-            {nav.cta}
-          </a>
-        </div>
-      </header>
-
       {/* CH 0 — HERO */}
       <section className="hero" id="top" data-chapter="0">
         <div className="hero-inner">

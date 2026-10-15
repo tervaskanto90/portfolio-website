@@ -158,6 +158,8 @@ export default function FluidCanvas() {
       renderer.render(scene, camera);
     };
     tick();
+    // first frame is painted: fade the background in instead of popping it
+    canvas.classList.add("on");
 
     return () => {
       cancelAnimationFrame(raf);
